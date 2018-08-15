@@ -1,22 +1,10 @@
 {
-  "name": "aframe-hello-world-boilerplate",
-  "description": "Boilerplate with A-Frame's 'Hello, World!' of WebVR.",
-  "version": "0.3.0",
-  "license": "MIT",
-  "scripts": {
-    "start": "budo --live --verbose --port 3000 --open",
-    "deploy": "ghpages",
-    "ghpages": "ghpages"
-  },
-  "devDependencies": {
-    "budo": "^7.0.0",
-    "ghpages": "0.0.3"
-  },
+  "name": "touch-controls",
+  "description": "Experimenting with touch screen controls",
+  "version": "0.0.0",
   "keywords": [
     "aframe",
-    "aframe-example",
-    "aframe-boilerplate",
-    "aframe-scene",
+    "touch-controls",
     "webvr",
     "vr"
   ]
