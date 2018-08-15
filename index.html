@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Hello, World! - A-Frame</title>
+    <meta name="description" content="Hello, World! - A-Frame">
+    <script src="https://aframe.io/releases/0.8.2/aframe.min.js"></script>
+  </head>
+  <body>
+
+    <script>
+        AFRAME.registerComponent('touch-controls', {
+          init: function () {
+            var el = this.el;
+            el.raycaster = new THREE.Raycaster();
+            el.contacts = new Map();
+
+            el.place = function(evt) {
+                var rect = evt.target.getBoundingClientRect();
+                var touches = evt.changedTouches
+                for(var t=0; t<touches.length; t++) {
+                    var touch = touches[t];
+                    var id = touch.identifier;
+                    //var x = ((touch.clientX - rect.left) / rect.width) * 2 - 1;
+                    //var y = -((touch.clientY - rect.top) / rect.height) * 2 + 1;
+
+                    if(!el.contacts.has(id)) {
+                        contact = document.createElement('a-sphere');
+                        contact.setAttribute('color', "#EF2D5E");
+                        contact.setAttribute('radius', "0.1");
+                        contact.setAttribute('position', "0 0 0.1")
+                        el.contacts.set(id, contact);
+                        el.appendChild(contact);
+                    }
+                }
+            }
+
+            el.move = function(evt, touchStarted) {
+                var rect = evt.target.getBoundingClientRect();
+                var camera = document.querySelector('[camera]').object3D.children[0];
+                var surfaces = document.querySelector('#planes').object3D;
+
+                for(var t = 0; t < evt.changedTouches.length; t++) {
+                    var touch = evt.changedTouches[t];
+                    var contact = el.contacts.get(touch.identifier);
+
+                    if(contact != null) {
+                        var x = ((touch.clientX - rect.left) / rect.width) * 2 - 1;
+                        var y = -((touch.clientY - rect.top) / rect.height) * 2 + 1;
+
+                        el.raycaster.setFromCamera(new THREE.Vector2(x, y), camera);
+                        var intersects = el.raycaster.intersectObjects(surfaces.children, true);
+                        if(intersects.length > 0) {
+                          var point = intersects[0].point;
+                          contact.object3D.position.setX(point.x);
+                          contact.object3D.position.setY(point.y);
+                        }
+                    }
+
+                }
+            };
+
+            el.addEventListener('touchstart', function (evt) {
+              //console.log("touchstart"); //console.log(evt);
+              el.place(evt);
+              el.move(evt);
+              evt.preventDefault();
+            });
+
+            el.addEventListener('touchend', function (evt) {
+                //console.log(el.contacts); //console.log(evt);
+                for(var t=0; t < evt.changedTouches.length; t++) {
+                    el.removeChild(el.contacts.get(evt.changedTouches[t].identifier));
+                    el.contacts.delete(evt.changedTouches[t].identifier);
+                }
+            });
+
+            el.addEventListener('touchmove', function (evt) {
+              //console.log("touchmove");  //console.log(evt);
+              el.move(evt);
+            });
+
+            el.addEventListener('touchcancel', function (evt) {
+              //console.log("touchcancel");
+              for(var t=0; t < evt.changedTouches.length; t++) {
+                  el.removeChild(el.contacts.get(evt.changedTouches[t].identifier));
+                  el.contacts.delete(evt.changedTouches[t].identifier);
+              }
+            });
+          }
+        });
+    </script>
+
+    <a-scene touch-controls>
+      <a-entity position="0 0 3" rotation="0 0 0" camera></a-entity>
+
+      <a-entity id="planes">
+        <a-plane position="-1 1 0" rotation="0 0 0" width="2" height="2" color="#AAFAFF"></a-plane>
+        <a-plane position="1 1 0" rotation="0 0 0" width="2" height="2" color="#AAFAFF"></a-plane>
+        <a-plane position="1 -1 0" rotation="0 0 0" width="2" height="2" color="#AAFAFF"></a-plane>
+        <a-plane position="-1 -1 0" rotation="0 0 0" width="2" height="2" color="#AAFAFF"></a-plane>
+      </a-entity>
+      <a-sky color="#ECECEC"></a-sky>
+    </a-scene>
+
+    <script>
+        var sceneEl = document.querySelector('a-scene');
+        var scene = sceneEl.object3D;
+        sceneEl.pause();
+    </script>
+  </body>
+</html>
